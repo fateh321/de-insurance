@@ -440,9 +440,10 @@ function CoinSwapper(props) {
       setField2Value("");
     } else if (reserves[0] && reserves[1]) {
       if (option2.isInsurer){
-        setField2Value(`${100*reserves[0]/reserves[1]}%`);
-      }else{
         setField2Value(`${100*reserves[1]/reserves[0]}%`);
+      }else{
+        setField2Value(`${100*reserves[0]/reserves[1]}%`);
+        
       }
 
       // getAmountOut(coin1.address, coin2.address, field1Value, router).then(
