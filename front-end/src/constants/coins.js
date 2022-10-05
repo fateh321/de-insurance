@@ -32,28 +32,28 @@ export const ETHEREUM = {
   isInsurer: false,
   name: "Ethereum",
   abbr: "ETH",
-  address: "0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", // Weth address
+  address: "0x1AeAf2947163119eB36E4d730C1e23e2d6D71072", // Weth address
 };
 export const BITCOIN = {
   isCoin: true,
   isInsurer: false,
   name: "Bitcoin",
   abbr: "BTC",
-  address: "0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", // Weth address
+  address: "0x1AeAf2947163119eB36E4d730C1e23e2d6D71072", // Weth address
 };
 export const AVALANCHE = {
   isCoin: true,
   isInsurer: false,
   name: "AVALANCHE",
   abbr: "AVAX",
-  address: "0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", // Weth address
+  address: "0x1AeAf2947163119eB36E4d730C1e23e2d6D71072", // Weth address
 };
 export const DOGECOIN = {
   isCoin: true,
   isInsurer: false,
   name: "Dogecoin",
   abbr: "DOGE",
-  address: "0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", // Weth address
+  address: "0x1AeAf2947163119eB36E4d730C1e23e2d6D71072", // Weth address
 };
 export const INSURER = {
   isCoin: false,

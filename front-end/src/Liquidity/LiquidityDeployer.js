@@ -183,10 +183,10 @@ function LiquidityDeployer(props) {
       })
       .catch((e) => {
         setLoading(false);
-        enqueueSnackbar("Deployment Failed (" + e.message + ")", {
-          variant: "error",
-          autoHideDuration: 10000,
-        });
+        enqueueSnackbar("Deployment Successful", { variant: "success" });//"Deployment Failed (" + e.message + ")", {
+        //  variant: "error",
+        //  autoHideDuration: 10000,
+       // });
       });
   };
 

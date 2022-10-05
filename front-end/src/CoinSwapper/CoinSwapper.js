@@ -16,12 +16,14 @@ import {
   getFactory,
   getProvider,
   getRouter,
+  getCore,
+  getEvent,
   getSigner,
   getAmountOut,
   getBalanceAndSymbol,
   getWeth,
   swapTokens,
-  getReserves, getOptionBalanceAndSymbol, stake,
+  getReserves, getOptionBalanceAndSymbol, stake, withdraw, trigger
 } from "../ethereumFunctions";
 import CoinField from "./CoinField";
 import CoinDialog from "./CoinDialog";
@@ -74,6 +76,12 @@ function CoinSwapper(props) {
   const [account, setAccount] = React.useState(undefined); // This is populated in a react hook
   const [router, setRouter] = React.useState(
     getRouter("0x4489D87C8440B19f11d63FA2246f943F492F3F5F", signer)
+  );
+  const [coreAddress, setCoreAddress] = React.useState(
+    "0x5E43DE058E9e46B31D359d41034f9A33E10DF0E6"
+  );
+  const [eventAddress, setEventAddress] = React.useState(
+    "0x7eb6C7eD19870d91F010a5440C0E769851761e8a"
   );
   const [weth, setWeth] = React.useState(
     getWeth("0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", signer)
@@ -251,7 +259,7 @@ function CoinSwapper(props) {
     // else if (address) {
     if (isInsurer!==undefined) {
       // Getting some token data is async, so we need to wait for the data to return, hence the promise
-      getOptionBalanceAndSymbol(isInsurer, account, router.address, provider, signer).then((data) => {
+      getOptionBalanceAndSymbol(isInsurer, account, eventAddress, provider, signer).then((data) => {
         setOption2({
           isCoin: false,
           isInsurer: isInsurer,
@@ -292,15 +300,73 @@ function CoinSwapper(props) {
       });
   };
   const stakeOption = () => {
-    console.log("Attempting to purchase option...");
+    console.log("Attempting to stake...");
+    console.log(provider);
+    console.log(signer.getAddress());
     setLoading(true);
 
     stake(
         option2.isInsurer,
         option1.address,
         parseFloat(field1Value),
-        router,
-        account,
+        coreAddress,
+        eventAddress,
+        signer
+    )
+        .then(() => {
+          setLoading(false);
+
+          // If the transaction was successful, we clear to input to make sure the user doesn't accidental redo the transfer
+          setField1Value("");
+          enqueueSnackbar("Transaction Successful", { variant: "success" });
+        })
+        .catch((e) => {
+          setLoading(false);
+          enqueueSnackbar("Transaction Failed (" + e.message + ")", {
+            variant: "error",
+            autoHideDuration: 10000,
+          });
+        });
+  };
+
+  const withdrawOption = () => {
+    console.log("Attempting to withdraw...");
+    setLoading(true);
+
+    withdraw(
+        option2.isInsurer,
+        option1.address,
+        parseFloat(field1Value),
+        coreAddress,
+        eventAddress,
+        signer
+    )
+        .then(() => {
+          setLoading(false);
+
+          // If the transaction was successful, we clear to input to make sure the user doesn't accidental redo the transfer
+          setField1Value("");
+          enqueueSnackbar("Transaction Successful", { variant: "success" });
+        })
+        .catch((e) => {
+          setLoading(false);
+          enqueueSnackbar("Transaction Failed (" + e.message + ")", {
+            variant: "error",
+            autoHideDuration: 10000,
+          });
+        });
+  };
+
+  const triggerOption = () => {
+    console.log("Attempting to trigger...");
+    setLoading(true);
+
+    trigger(
+        option2.isInsurer,
+        option1.address,
+        parseFloat(field1Value),
+        coreAddress,
+        eventAddress,
         signer
     )
         .then(() => {
@@ -320,15 +386,17 @@ function CoinSwapper(props) {
   };
 
   function startTimer(duration, display) {
-    var timer = duration, minutes, seconds;
+    var timer = duration, hours, minutes, seconds;
     setInterval(function () {
-      minutes = parseInt(timer / 60, 10);
+      hours = parseInt(timer / 3600, 10);
+      minutes = parseInt(timer / 60 %60, 10);
       seconds = parseInt(timer % 60, 10);
 
+      hours = hours < 10 ? "0" + hours : hours;
       minutes = minutes < 10 ? "0" + minutes : minutes;
       seconds = seconds < 10 ? "0" + seconds : seconds;
 
-      display.textContent = minutes + ":" + seconds;
+      display.textContent = hours + ":" + minutes + ":" + seconds;
 
       if (--timer < 0) {
         timer = 0;
@@ -338,7 +406,7 @@ function CoinSwapper(props) {
   }
 
   window.onload = function () {
-    var fiveMinutes = 60 * 0.5,
+    var fiveMinutes = 60 * 5000,
         display = document.querySelector('#time');
     startTimer(fiveMinutes, display);
   };
@@ -356,8 +424,8 @@ function CoinSwapper(props) {
       "Trying to get Reserves between:\n" + option1.address + "\n" + option2.address
     );
 
-    if (option1.address && option2.address) {
-      getReserves(option1.address, option2.address, factory, signer, account).then(
+    if (option1.address) {
+      getReserves(option1.address, option2.address, eventAddress, signer, account).then(
         (data) => setReserves(data)
       );
     }
@@ -391,23 +459,26 @@ function CoinSwapper(props) {
     const coinTimeout = setTimeout(() => {
       console.log("Checking balances...");
 
-      if (coin1.address && coin2.address && account) {
+      if (option1.address) {
         getReserves(
-          coin1.address,
+          option1.address,
           coin2.address,
-          factory,
+          eventAddress,
           signer,
           account
         ).then((data) => setReserves(data));
       }
 
-      if (coin1 && account) {
-        getBalanceAndSymbol(account, coin1.address, provider, signer).then(
+      if (option1.address) {
+        getOptionBalanceAndSymbol(option2.isInsurer, account, eventAddress, provider, signer).then(
           (data) => {
-            setCoin1({
-              ...coin1,
-              balance: data.balance,
-            });
+                    setOption2({
+                      isCoin: false,
+                      isInsurer: option2.isInsurer,
+                      address: undefined,
+                      symbol: option2.symbol,
+                      balance: data.balance,
+                    });
           }
         );
       }
@@ -421,7 +492,7 @@ function CoinSwapper(props) {
           }
         );
       }
-    }, 10000);
+    }, 5000);
 
     return () => clearTimeout(coinTimeout);
   });
@@ -457,7 +528,7 @@ function CoinSwapper(props) {
       <Container maxWidth="xs">
         <Paper className={classes.paperContainer}>
           <Typography variant="h5" className={classes.title}>
-            Insurance for st-ETH
+            Insurance for USDT/USDC &#60; 0.9
           </Typography>
 
           <Grid container direction="column" alignItems="center" spacing={2}>
@@ -529,7 +600,7 @@ function CoinSwapper(props) {
               valid={true}
               success={false}
               fail={false}
-              onClick={swap}
+              onClick={stakeOption}
             >
               <LoopIcon />
               Swap
@@ -543,7 +614,7 @@ function CoinSwapper(props) {
                     valid={true}
                     success={false}
                     fail={false}
-                    onClick={swap}
+                    onClick={withdrawOption}
                 >
                   {/*<LoopIcon />*/}
                   Withdraw
@@ -555,7 +626,7 @@ function CoinSwapper(props) {
                     valid={true}
                     success={false}
                     fail={false}
-                    onClick={swap}
+                    onClick={triggerOption}
                 >
                   <AlarmIcon />
                   Trigger

@@ -5,6 +5,8 @@ const ROUTER = require("./build/UniswapV2Router02.json");
 const ERC20 = require("./build/ERC20.json");
 const FACTORY = require("./build/IUniswapV2Factory.json");
 const PAIR = require("./build/IUniswapV2Pair.json");
+const EVENT = require("./build/DeInsurance/Event.json");
+const CORE = require("./build/DeInsurance/Core.json");
 
 export function getProvider() {
   return new ethers.providers.Web3Provider(window.ethereum);
@@ -16,6 +18,14 @@ export function getSigner(provider) {
 
 export function getRouter(address, signer) {
   return new Contract(address, ROUTER.abi, signer);
+}
+
+export function getCore(address, signer) {
+  return new Contract(address, CORE.abi, signer);
+}
+
+export function getEvent(address, signer) {
+  return new Contract(address, EVENT.abi, signer);
 }
 
 export function getWeth(address, signer) {
@@ -83,24 +93,24 @@ export async function getBalanceAndSymbol(
 export async function getOptionBalanceAndSymbol(
     isInsurer,
     accountAddress,
-    address,
+    eventAddress,
     provider,
     signer
 ) {
   try {
-      const token = new Contract(address, ERC20.abi, signer);
+      const event = new Contract(eventAddress, EVENT.abi, signer);
       // the abi function should return a tuple [insurer, insured]
-      const balanceRaw = await token.balanceOf(accountAddress);
-      const symbol = await token.symbol();
+      const balances = await event.getBalances();
+      const symbol = "";//await token.symbol();
       // should return based on whether the staker is insurer or insured
       if(isInsurer){
         return {
-          balance: ethers.utils.formatEther(balanceRaw),
+          balance: ethers.utils.formatEther(balances[0]),
           symbol: symbol,
         };
       }else{
         return {
-          balance: ethers.utils.formatEther(balanceRaw),
+          balance: ethers.utils.formatEther(balances[1]),
           symbol: symbol,
         };
       }
@@ -170,35 +180,49 @@ export async function swapTokens(
 // this function is supposed to be used to buy or provide insurance cover
 export async function stake(
     isInsurer,
-    address1,
+    tokenAddress,
     amount,
-    routerContract,
-    accountAddress,
+    coreAddress,
+    eventAddress,
     signer
 ) {
+  console.log(eventAddress);
+  console.log(tokenAddress);
   // const tokens = [address1, address2];
   const time = Math.floor(Date.now() / 1000) + 200000;
   const deadline = ethers.BigNumber.from(time);
 
   const amountIn = ethers.utils.parseEther(amount.toString());
+   console.log(amountIn);
   // const amountOut = await routerContract.callStatic.getAmountsOut(
   //     amountIn,
   //     tokens
   // );
+  console.log("stake1");
+  //const token = new Contract(tokenAddress, ERC20.abi, signer);
+  console.log("stake2");
+  //await token.approve(coreAddress, amountIn);
+  console.log("stake3");
 
-  const token1 = new Contract(address1, ERC20.abi, signer);
-  await token1.approve(routerContract.address, amountIn);
+  const coreContract = new Contract(coreAddress, CORE.abi, signer);
+  console.log("stake4");
 
   if (isInsurer){
-    await routerContract.buyInsurance(
-        amountIn,
-        accountAddress
+    console.log("stake5");
+    await coreContract.provideInsurance(
+        eventAddress,
+        tokenAddress,
+        amountIn
     )
+    console.log("stake5a");
   }else{
-    await routerContract.provideInsurance(
-        amountIn,
-        accountAddress
+    console.log("stake6");
+    await coreContract.pruchaseInsurance(
+        eventAddress,
+        tokenAddress,
+        amountIn
     )
+    console.log("stake6a");
   }
   // if (address1 === COINS.AUTONITY.address) {
   //   // Eth -> Token
@@ -228,6 +252,29 @@ export async function stake(
   //   );
   // }
 }
+export async function trigger(
+    isInsurer,
+    tokenAddress,
+    amount,
+    coreAddress,
+    eventAddress,
+    signer
+) {
+  const event = new Contract(eventAddress, EVENT.abi, signer);
+  const result = await event.triggger(true);
+}
+
+export async function withdraw(
+    isInsurer,
+    tokenAddress,
+    amount,
+    coreAddress,
+    eventAddress,
+    signer
+) {
+  const dummy = 3;
+}
+
 //This function returns the conversion rate between two token addresses
 //    `address1` - An Ethereum address of the token to swaped from (either a token or AUT)
 //    `address2` - An Ethereum address of the token to swaped to (either a token or AUT)
@@ -299,22 +346,31 @@ export async function fetchStakes(pair) {
 export async function getReserves(
   address1,
   address2,
-  factory,
+  eventAddress,
   signer,
   accountAddress
 ) {
-  const pairAddress = await factory.getPair(address1, address2);
-  const pair = new Contract(pairAddress, PAIR.abi, signer);
+  console.log("Reserves");
+//  const pairAddress = await factory.getPair(address1, address2);
+  const event = new Contract(eventAddress, EVENT.abi, signer);
 
-  const reservesRaw = await fetchReserves(address1, address2, pair);
-  const liquidityTokens_BN = await pair.balanceOf(accountAddress);
-  const liquidityTokens = Number(
-    ethers.utils.formatEther(liquidityTokens_BN)
-  ).toFixed(2);
+  let insurance = await event.totalInsurance();
+  let premiums = await event.totalPremiums();
+  insurance = ethers.utils.formatEther(insurance);
+  premiums = ethers.utils.formatEther(premiums);
+  console.log(insurance);
+  console.log(premiums);
+  if (insurance === "0.0") {
+    premiums = "0.0";
+  }
+//  const liquidityTokens_BN = await pair.balanceOf(accountAddress);
+//  const liquidityTokens = Number(
+//    ethers.utils.formatEther(liquidityTokens_BN)
+//  ).toFixed(2);
 
   return [
-    reservesRaw[0].toFixed(2),
-    reservesRaw[1].toFixed(2),
-    liquidityTokens,
+    insurance,//.toFixed(2),
+    premiums,//.toFixed(2),
+    0,//liquidityTokens,
   ];
 }
