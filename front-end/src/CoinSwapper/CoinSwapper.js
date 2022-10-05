@@ -81,7 +81,7 @@ function CoinSwapper(props) {
     "0x5E43DE058E9e46B31D359d41034f9A33E10DF0E6"
   );
   const [eventAddress, setEventAddress] = React.useState(
-    "0x7eb6C7eD19870d91F010a5440C0E769851761e8a"
+    "0x47Dc964E556de5214c691AF63742D7257A63858f"
   );
   const [weth, setWeth] = React.useState(
     getWeth("0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", signer)
