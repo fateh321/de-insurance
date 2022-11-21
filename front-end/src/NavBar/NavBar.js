@@ -12,7 +12,7 @@ class NavBar extends Component {
       <nav>
         <div className="Title">
           <h1 className="navbar-logo">
-            <img src={logo} className="logo"></img>
+            <img src={logo} className="logo" width = "150" height="82"></img>
           </h1>
         </div>
 
@@ -35,3 +35,4 @@ class NavBar extends Component {
 }
 
 export default NavBar;
+

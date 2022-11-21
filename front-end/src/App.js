@@ -8,6 +8,9 @@ import { SnackbarProvider } from "notistack";
 import Liquidity from "./Liquidity/Liquidity";
 import ConnectWalletPage from "./Components/connectWalletPage";
 import { createTheme, ThemeProvider } from "@material-ui/core";
+import Oracle from "./Oracle/Oracle";
+import VerticalTabs from "./NavBar/VerticalBar"
+import PermanentDrawerLeft from "./NavBar/Drawer";
 
 const theme = createTheme({
   palette: {
@@ -32,7 +35,9 @@ function App() {
       <div className="App">
         <SnackbarProvider maxSnack={3}>
           <ThemeProvider theme={theme}>
-            <NarBar />
+            {/*<VerticalTabs/>*/}
+            <PermanentDrawerLeft />
+            {/*<NarBar />*/}
             <Route
               exact
               path="/marketplace/"
@@ -40,8 +45,13 @@ function App() {
             />
             <Route
               exact
-              path="/deploy/"
-              component={Liquidity}
+              path="/oracle/"
+              component={Oracle}
+            />
+            <Route
+                exact
+                path="/liquidity/"
+                component={Liquidity}
             />
           </ThemeProvider>
         </SnackbarProvider>

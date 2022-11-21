@@ -1,12 +1,11 @@
 import { Contract, ethers } from "ethers";
 import * as COINS from "./constants/coins";
-
 const ROUTER = require("./build/UniswapV2Router02.json");
 const ERC20 = require("./build/ERC20.json");
 const FACTORY = require("./build/IUniswapV2Factory.json");
 const PAIR = require("./build/IUniswapV2Pair.json");
 const EVENT = require("./build/DeInsurance/Event.json");
-const CORE = require("./build/DeInsurance/Core.json");
+const CORE = require("./build/DeInsurance/Core_v2.json");
 
 export function getProvider() {
   return new ethers.providers.Web3Provider(window.ethereum);
@@ -224,38 +223,151 @@ export async function stake(
     )
     console.log("stake6a");
   }
-  // if (address1 === COINS.AUTONITY.address) {
-  //   // Eth -> Token
-  //   await routerContract.swapExactETHForTokens(
-  //       amountOut[1],
-  //       tokens,
-  //       accountAddress,
-  //       deadline,
-  //       { value: amountIn }
-  //   );
-  // } else if (address2 === COINS.AUTONITY.address) {
-  //   // Token -> Eth
-  //   await routerContract.swapExactTokensForETH(
-  //       amountIn,
-  //       amountOut[1],
-  //       tokens,
-  //       accountAddress,
-  //       deadline
-  //   );
-  // } else {
-  //   await routerContract.swapExactTokensForTokens(
-  //       amountIn,
-  //       amountOut[1],
-  //       tokens,
-  //       accountAddress,
-  //       deadline
-  //   );
-  // }
+
+}
+
+// this function is supposed to mint tokens
+export async function mint(
+    amount,
+    coreAddress,
+    eventAddress,
+    signer
+) {
+  console.log(eventAddress);
+
+  const time = Math.floor(Date.now() / 1000) + 200000;
+  const deadline = ethers.BigNumber.from(time);
+
+  const amountIn = ethers.utils.parseEther(amount.toString());
+  console.log(amountIn);
+  // const amountOut = await routerContract.callStatic.getAmountsOut(
+  //     amountIn,
+  //     tokens
+  // );
+
+  console.log("stake3");
+
+  const coreContract = new Contract(coreAddress, CORE.abi, signer);
+  console.log("stake4");
+
+    await coreContract.mintPositions(
+        eventAddress,
+        amountIn
+    )
+    console.log("stake5a");
+
+}
+// this function is supposed to burn tokens
+export async function burn(
+    amount,
+    coreAddress,
+    eventAddress,
+    signer
+) {
+  console.log(eventAddress);
+
+  const time = Math.floor(Date.now() / 1000) + 200000;
+  const deadline = ethers.BigNumber.from(time);
+
+  const amountIn = ethers.utils.parseEther(amount.toString());
+  console.log(amountIn);
+  // const amountOut = await routerContract.callStatic.getAmountsOut(
+  //     amountIn,
+  //     tokens
+  // );
+
+  console.log("stake3");
+
+  const coreContract = new Contract(coreAddress, CORE.abi, signer);
+  console.log("stake4");
+
+  await coreContract.burnPositions(
+      eventAddress,
+      amountIn
+  )
+  console.log("stake5a");
+
+}
+// this function is supposed to burn tokens
+export async function redeem(
+    coreAddress,
+    eventAddress,
+    signer
+) {
+  console.log(eventAddress);
+
+  const time = Math.floor(Date.now() / 1000) + 200000;
+  const deadline = ethers.BigNumber.from(time);
+
+
+  console.log("stake3");
+
+  const coreContract = new Contract(coreAddress, CORE.abi, signer);
+  console.log("stake4");
+
+  await coreContract.redeemPositions(
+      eventAddress
+  )
+  console.log("stake5a");
+
+}
+// this function is supposed to buy insured tokens
+export async function buy(
+    amount,
+    eventUniAddress,
+    signer
+) {
+
+  const time = Math.floor(Date.now() / 1000) + 200000;
+  const deadline = ethers.BigNumber.from(time);
+
+  const amountIn = ethers.utils.parseEther(amount.toString());
+  console.log(amountIn);
+  // const amountOut = await routerContract.callStatic.getAmountsOut(
+  //     amountIn,
+  //     tokens
+  // );
+
+  console.log("stake3");
+
+  const uniContract = new Contract(eventUniAddress, CORE.abi, signer);
+  console.log("stake4");
+
+  await uniContract.swap(
+      amountIn
+  )
+  console.log("stake5a");
+
+}
+// this function is supposed to sell tokens
+export async function sell(
+    amount,
+    eventUniAddress,
+    signer
+) {
+
+  const time = Math.floor(Date.now() / 1000) + 200000;
+  const deadline = ethers.BigNumber.from(time);
+
+  const amountIn = ethers.utils.parseEther(amount.toString());
+  console.log(amountIn);
+  // const amountOut = await routerContract.callStatic.getAmountsOut(
+  //     amountIn,
+  //     tokens
+  // );
+
+  console.log("stake3");
+
+  const uniContract = new Contract(eventUniAddress, CORE.abi, signer);
+  console.log("stake4");
+
+  await uniContract.swap(
+      amountIn
+  )
+  console.log("stake5a");
+
 }
 export async function trigger(
-    isInsurer,
-    tokenAddress,
-    amount,
     coreAddress,
     eventAddress,
     signer
@@ -264,6 +376,22 @@ export async function trigger(
   const result = await event.triggger(true);
 }
 
+export async function deployEvent(
+    name,
+    duration,
+    oracleAddress,
+    assetAddress,
+    settleRatio,
+    tokenRatio,
+    coreAddress,
+    signer
+) {
+  // const _duration = BigInt(duration.toString());
+  // const _settleRatio = BigInt(settleRatio.toString());
+  // const _tokenRatio = BigInt(tokenRatio.toString());
+  const coreContract= new Contract(coreAddress, CORE.abi, signer);
+  const result = await coreContract.deployEvent(name, duration, oracleAddress, assetAddress, settleRatio, tokenRatio);
+}
 export async function withdraw(
     isInsurer,
     tokenAddress,

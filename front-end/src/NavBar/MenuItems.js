@@ -4,9 +4,15 @@ export const MenuItems = [
     url: "/marketplace/",
     cName: "nav-links",
   },
+
   {
     title: "Deploy insurance?",
-    url: "/deploy/",
+    url: "/oracle/",
+    cName: "nav-links",
+  },
+  {
+    title: "Manage insurance",
+    url: "/liquidity/",
     cName: "nav-links",
   },
 ];

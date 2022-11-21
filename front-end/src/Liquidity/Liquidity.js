@@ -10,6 +10,7 @@ import {
 import SwitchButton from "./SwitchButton";
 import LiquidityDeployer from "./LiquidityDeployer";
 import LiquidityRemover from "./RemoveLiquidity";
+import MintBurnLiquid from "./MintBurnLiquidity";
 
 const styles = (theme) => ({
   paperContainer: {
@@ -38,36 +39,15 @@ function Liquidity() {
 
   const deploy_or_remove = (deploy) => {
     if (deploy === true) {
-      return <LiquidityDeployer />;
+      return <MintBurnLiquid />
+      // return <LiquidityDeployer />;
     }
     return <LiquidityRemover />;
   };
 
   return (
     <div>
-      <Container>
-        <Paper className={classes.paperContainer}>
-          {/*<Typography variant="h5" className={classes.title}>*/}
-          {/*  <SwitchButton setDeploy={setDeploy} />*/}
-          {/*</Typography>*/}
-
-          {/*{deploy_or_remove(deploy)}*/}
-          {deploy_or_remove(true)}
-        </Paper>
-      </Container>
-
-      <Grid
-        container
-        className={classes.footer}
-        direction="row"
-        justifyContent="center"
-        alignItems="flex-end"
-      >
-        <p>
-          Becoz-we-can labs | Get ETH from the Ropsten testnet{" "}
-          <a href="https://faucet.bakerloo.autonity.network/">here</a>
-        </p>
-      </Grid>
+      <MintBurnLiquid />
     </div>
   );
 }
