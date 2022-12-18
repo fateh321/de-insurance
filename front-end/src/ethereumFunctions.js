@@ -1,11 +1,13 @@
 import { Contract, ethers } from "ethers";
 import * as COINS from "./constants/coins";
+import * as ADDRS from "./constants/events";
 const ROUTER = require("./build/UniswapV2Router02.json");
 const ERC20 = require("./build/ERC20.json");
 const FACTORY = require("./build/IUniswapV2Factory.json");
 const PAIR = require("./build/IUniswapV2Pair.json");
 const EVENT = require("./build/DeInsurance/Event.json");
 const CORE = require("./build/DeInsurance/Core_v2.json");
+const INSTOKEN = require("./build/DeInsurance/InsuranceToken");
 
 export function getProvider() {
   return new ethers.providers.Web3Provider(window.ethereum);
@@ -62,31 +64,29 @@ export function doesTokenExist(address, signer) {
 //    `signer` - The current signer
 export async function getBalanceAndSymbol(
   accountAddress,
-  address,
+  eventAddress,
   provider,
   signer
 ) {
-  try {
-    if (address === COINS.AUTONITY.address) {
-      const balanceRaw = await provider.getBalance(accountAddress);
+  console.log("Checking balances for real now");
+  console.log(accountAddress);
+  console.log(eventAddress);
+  //try {
+    const event = new Contract(eventAddress, EVENT.abi, signer);
+    const tokenAddress = event.insuredToken();
 
-      return {
-        balance: ethers.utils.formatEther(balanceRaw),
-        symbol: COINS.AUTONITY.abbr,
-      };
-    } else {
-      const token = new Contract(address, ERC20.abi, signer);
-      const balanceRaw = await token.balanceOf(accountAddress);
-      const symbol = await token.symbol();
+    const token = new Contract(tokenAddress, INSTOKEN.abi, signer);
+    const balanceRaw = await token.balanceOf(accountAddress);
+    const symbol = await token.symbol();
 
-      return {
-        balance: ethers.utils.formatEther(balanceRaw),
-        symbol: symbol,
-      };
-    }
-  } catch (err) {
-    return false;
-  }
+    console.log("balance: ", ethers.utils.formatEther(balanceRaw), symbol);
+    return {
+      balance: ethers.utils.formatEther(balanceRaw),
+      symbol: symbol,
+    };
+  //} catch (err) {
+ //   return false;
+ // }
 }
 // the following function fetches the balance of user as an insurer and insured.
 export async function getOptionBalanceAndSymbol(
@@ -96,27 +96,54 @@ export async function getOptionBalanceAndSymbol(
     provider,
     signer
 ) {
-  try {
+  console.log("fetching coverage for real now");
+  //try {
+      console.log("fetching coverage for real now");
+      console.log(eventAddress);
       const event = new Contract(eventAddress, EVENT.abi, signer);
-      // the abi function should return a tuple [insurer, insured]
-      const balances = await event.getBalances();
-      const symbol = "";//await token.symbol();
-      // should return based on whether the staker is insurer or insured
-      if(isInsurer){
-        return {
-          balance: ethers.utils.formatEther(balances[0]),
-          symbol: symbol,
-        };
-      }else{
-        return {
-          balance: ethers.utils.formatEther(balances[1]),
-          symbol: symbol,
-        };
-      }
 
-  } catch (err) {
-    return false;
-  }
+      const settleRatio = (await event.refundPerecent()).toNumber()/100; //settleRatio is x100 in the contract to ease Solidity division
+      const assetTokenRatio = (await event.assetTokenRatio()).toNumber();
+
+      const insuranceRedemptionPrice = (1 - settleRatio) / assetTokenRatio;
+      const coverageRedemptionPrice = settleRatio / assetTokenRatio;
+     
+      const insuranceToken = await event.insuredToken();
+      const insuranceUniPool = await (new Contract(ADDRS.UNISWAP.factory, FACTORY.abi, signer)).getPair(insuranceToken, ADDRS.WETH.address);
+      const reserves = await (new Contract(insuranceUniPool, PAIR.abi, signer).getReserves());
+      const insurancePrice = reserves[0]/reserves[1];
+
+      const reward = insurancePrice - insuranceRedemptionPrice + 0.001; //from whitepaper
+      const coverage = (2*coverageRedemptionPrice - 1 / assetTokenRatio)/reward;
+
+      console.log("settle ratio: ", settleRatio);
+      console.log("redemption price: ", insuranceRedemptionPrice);
+      console.log("insuance price: ", insurancePrice);
+      console.log("reward: ", reward);
+      console.log("coverage: ", coverage);
+
+      return {
+        coverage: coverage,
+      };
+
+      // const symbol = "";//await token.symbol();
+      // // should return based on whether the staker is insurer or insured
+      // if(isInsurer){
+      //   return {
+      //     balance: ethers.utils.formatEther(balances[0]),
+      //     symbol: symbol,
+      //   };
+      // }else{
+      //   return {
+      //     balance: ethers.utils.formatEther(balances[1]),
+      //     symbol: symbol,
+      //   };
+      // }
+
+  // } catch (err) {
+  //   console.log("fetching coverage for real now-part 2");
+  //   return false;
+  // }
 }
 // This function swaps two particular tokens / AUT, it can handle switching from AUT to ERC20 token, ERC20 token to AUT, and ERC20 token to ERC20 token.
 // No error handling is done, so any issues can be caught with the use of .catch()

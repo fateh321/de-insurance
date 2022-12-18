@@ -85,10 +85,10 @@ function CoinSwapper(props) {
     "0xde68D58ba403be67703B903c99932A854A233dEF"
   );
   const [eventAddress, setEventAddress] = React.useState(
-    "0x"
+    "0x1FbF370cd78dB6023a29471a9B81E81C615601Dd"
   );
   const [exchangeAddress, setExchangeAddress] = React.useState(
-      "0x"
+      "0x8Fb83a2A5bf59AA20C21d56639d4e713C8B18A1f"
   );
   const [weth, setWeth] = React.useState(
     getWeth("0x3f0D1FAA13cbE43D662a37690f0e8027f9D89eBF", signer)
@@ -121,6 +121,15 @@ function CoinSwapper(props) {
     index: undefined,
     name: undefined,
   });
+
+  const [option2, setOption2] = React.useState({
+    isCoin: false,
+    isInsurer: false,
+    address: undefined,
+    balance: undefined,
+    symbol: undefined,
+    coverage: undefined,
+  });
   // Stores the current reserves in the liquidity pool between coin1 and coin2
   const [reserves, setReserves] = React.useState(["0.0", "0.0"]);
 
@@ -141,12 +150,12 @@ function CoinSwapper(props) {
     },
   };
 
-  // Turns the account's balance into something nice and readable
-  // const formatBalance = (balance, symbol) => {
-  //   if (balance && symbol)
-  //     return parseFloat(balance).toPrecision(8) + " " + symbol;
-  //   else return "0.0";
-  // };
+  //Turns the account's balance into something nice and readable
+  const formatBalance = (balance, symbol) => {
+    if (balance && symbol)
+      return parseFloat(balance).toPrecision(8) + " " + symbol;
+    else return "0.0";
+  };
   //
   // // Turns the coin's reserves into something nice and readable
   // const formatReserve = (reserve, symbol) => {
@@ -175,6 +184,7 @@ function CoinSwapper(props) {
 
     // Getting some token data is async, so we need to wait for the data to return, hence the promise
     if (inp !== undefined) {
+      console.log("index", inp[1]);
       setInput1(
           {
             isSelected: true,
@@ -197,6 +207,7 @@ function CoinSwapper(props) {
 
     // Getting some token data is async, so we need to wait for the data to return, hence the promise
     if (inp !== undefined) {
+      console.log("index", inp[1]);
       setInput2(
           {
             isSelected: true,
@@ -220,6 +231,7 @@ function CoinSwapper(props) {
 
     // Getting some token data is async, so we need to wait for the data to return, hence the promise
     if (inp !== undefined) {
+      console.log("ev_addr", inp[2].event);
       setInput3(
           {
             isSelected: true,
@@ -230,8 +242,8 @@ function CoinSwapper(props) {
       setField3Value(
           "Deadline: "+inp[0]
       )
-      setEventAddress(inp[2].event);
-      setExchangeAddress(inp[2].exchnge);
+      setEventAddress(inp[2][0]);
+      setExchangeAddress(inp[2][1]);
       setActiveStep(3);
     }
 
@@ -358,49 +370,45 @@ function CoinSwapper(props) {
   //   }
   // }, [field1Value, coin1.address, coin2.address]);
 
-  // This hook creates a timeout that will run every ~10 seconds, it's role is to check if the user's balance has
-  // updated has changed. This allows them to see when a transaction completes by looking at the balance output.
-  // useEffect(() => {
-  //   const coinTimeout = setTimeout(() => {
-  //     console.log("Checking balances...");
-  //
-  //     if (option1.address) {
-  //       getReserves(
-  //         option1.address,
-  //         coin2.address,
-  //         eventAddress,
-  //         signer,
-  //         account
-  //       ).then((data) => setReserves(data));
-  //     }
-  //
-  //     if (option1.address) {
-  //       getOptionBalanceAndSymbol(option2.isInsurer, account, eventAddress, provider, signer).then(
-  //         (data) => {
-  //                   setOption2({
-  //                     isCoin: false,
-  //                     isInsurer: option2.isInsurer,
-  //                     address: undefined,
-  //                     symbol: option2.symbol,
-  //                     balance: data.balance,
-  //                   });
-  //         }
-  //       );
-  //     }
-  //     if (coin2 && account) {
-  //       getBalanceAndSymbol(account, coin2.address, provider, signer).then(
-  //         (data) => {
-  //           setCoin2({
-  //             ...coin2,
-  //             balance: data.balance,
-  //           });
-  //         }
-  //       );
-  //     }
-  //   }, 5000);
-  //
-  //   return () => clearTimeout(coinTimeout);
-  // });
+  //This hook creates a timeout that will run every ~5 seconds, it's role is to check if the user's balance 
+  //has changed. This allows them to see when a transaction completes by looking at the balance output.
+  useEffect(() => {
+    const coinTimeout = setTimeout(() => {
+      console.log("Checking coverage...");
+  
+        // getReserves(
+        //   option1.address,
+        //   coin2.address,
+        //   eventAddress,
+        //   signer,
+        //   account
+        // ).then((data) => setReserves(data));
+     
+        getOptionBalanceAndSymbol(false, account, eventAddress, provider, signer).then(
+          (data) => {
+            setOption2({
+              isCoin: false,
+              isInsurer: false,
+              address: eventAddress,
+              balance: data.coverage,
+              symbol: undefined,
+              coverage: data.coverage,
+            });
+          }
+        );
+     
+        // getBalanceAndSymbol(account, coin2.address, provider, signer).then(
+        //   (data) => {
+        //     setCoin2({
+        //       ...coin2,
+        //       balance: data.balance,
+        //     });
+        //   }
+        // );
+    }, 5000);
+  
+    return () => clearTimeout(coinTimeout);
+  });
   //
   // // This hook will run when the component first mounts, it can be useful to put logic to populate variables here
   // useEffect(() => {
@@ -496,8 +504,8 @@ function CoinSwapper(props) {
             <Typography variant="h6">Fetching coverage</Typography>
 
                 <Typography variant="body1" className={classes.balance}>
-                  TODO
-                  {/*{formatBalance(option2.balance, option1.symbol)}*/}
+                  {/*TODO*/}
+                  {formatBalance(option2.balance, "USDC")}
                 </Typography>
 
 

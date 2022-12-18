@@ -85,7 +85,7 @@ function MintBurnLiquid(props) {
         "0xde68D58ba403be67703B903c99932A854A233dEF"
     );
     const [eventAddress, setEventAddress] = React.useState(
-        "0xE55CC35bF4A71564B68A12dAA2391215bd520BdF"
+        "0x1FbF370cd78dB6023a29471a9B81E81C615601Dd"
     );
 
     // Stores a record of whether their respective dialog window is open
@@ -123,6 +123,14 @@ function MintBurnLiquid(props) {
         name: undefined,
     });
 
+    const [option2, setOption2] = React.useState({
+        isCoin: false,
+        isInsurer: false,
+        address: undefined,
+        balance: undefined,
+        symbol: undefined,
+  });
+
 
     // These functions take an HTML event, pull the data out and puts it into a state variable.
     const handleChange = {
@@ -139,6 +147,7 @@ function MintBurnLiquid(props) {
 
     // Turns the account's balance into something nice and readable
     const formatBalance = (balance, symbol) => {
+        console.log(symbol, balance)
         if (balance && symbol)
             return parseFloat(balance).toPrecision(8) + " " + symbol;
         else return "0.0";
@@ -228,7 +237,9 @@ function MintBurnLiquid(props) {
             setField3Value(
                 "Deadline: "+inp[0]
             )
-            setEventAddress(inp[2].event)
+            console.log("inaa:", inp[2][0]);
+            setEventAddress(inp[2][0]);
+            //setExchangeAddress(inp[2][1]);
             setActiveStep(3);
         }
 
@@ -362,9 +373,9 @@ function MintBurnLiquid(props) {
 
     // This hook creates a timeout that will run every ~10 seconds, it's role is to check if the user's balance has
     // updated has changed. This allows them to see when a transaction completes by looking at the balance output.
-    // useEffect(() => {
-    //     const coinTimeout = setTimeout(() => {
-    //         console.log("Checking balances...");
+    useEffect(() => {
+        const coinTimeout = setTimeout(() => {
+            console.log("Checking balances...");
     //
     //         if (option1.address) {
     //             getReserves(
@@ -389,27 +400,27 @@ function MintBurnLiquid(props) {
     //                 }
     //             );
     //         }
-    //         if (coin2 && account) {
-    //             getBalanceAndSymbol(account, coin2.address, provider, signer).then(
-    //                 (data) => {
-    //                     setCoin2({
-    //                         ...coin2,
-    //                         balance: data.balance,
-    //                     });
-    //                 }
-    //             );
-    //         }
-    //     }, 5000);
-    //
-    //     return () => clearTimeout(coinTimeout);
-    // });
+            if (account) {
+                getBalanceAndSymbol(account, eventAddress, provider, signer).then(
+                    (data) => {
+                        setOption2({
+                            balance: data.balance,
+                            symbol: data.symbol,
+                        });
+                    }
+                );
+            }
+        }, 5000);
+    
+        return () => clearTimeout(coinTimeout);
+    });
 
     // This hook will run when the component first mounts, it can be useful to put logic to populate variables here
-    // useEffect(() => {
-    //     getAccount().then((account) => {
-    //         setAccount(account);
-    //     });
-    // });
+    useEffect(() => {
+        getAccount().then((account) => {
+            setAccount(account);
+        });
+    });
 
     return (
         <div>
@@ -496,7 +507,7 @@ function MintBurnLiquid(props) {
                         <Typography variant="h6">Your Balance</Typography>
 
                         <Typography variant="body1" className={classes.balance}>
-                            {/*{formatBalance(option2.balance, option1.symbol)}*/} TODO
+                            {formatBalance(option2.balance, option2.symbol)}
                         </Typography>
 
 

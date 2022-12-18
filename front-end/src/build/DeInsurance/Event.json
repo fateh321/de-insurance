@@ -1,11 +1,120 @@
 {
   "abi": [
     {
+        "anonymous": false,
         "inputs": [
             {
-                "internalType": "bytes32",
+                "indexed": true,
+                "internalType": "address",
+                "name": "previousOwner",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "claimInsurance",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "returnAsset",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bool",
+                "name": "status",
+                "type": "bool"
+            }
+        ],
+        "name": "setEventStatus",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "trigger",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
                 "name": "_name",
-                "type": "bytes32"
+                "type": "string"
             },
             {
                 "internalType": "uint256",
@@ -16,6 +125,21 @@
                 "internalType": "address",
                 "name": "_oracleAddress",
                 "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_assetAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_refundPercent",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_assetTokenRatio",
+                "type": "uint256"
             }
         ],
         "stateMutability": "nonpayable",
@@ -23,9 +147,28 @@
     },
     {
         "inputs": [],
-        "name": "claimInsurance",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "name": "asset",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "assetTokenRatio",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -43,12 +186,12 @@
     },
     {
         "inputs": [],
-        "name": "duration",
+        "name": "dormant",
         "outputs": [
             {
-                "internalType": "uint256",
+                "internalType": "bool",
                 "name": "",
-                "type": "uint256"
+                "type": "bool"
             }
         ],
         "stateMutability": "view",
@@ -56,16 +199,11 @@
     },
     {
         "inputs": [],
-        "name": "getBalances",
+        "name": "duration",
         "outputs": [
             {
                 "internalType": "uint256",
-                "name": "insurance",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "premiums",
+                "name": "",
                 "type": "uint256"
             }
         ],
@@ -86,6 +224,19 @@
                 "internalType": "uint256",
                 "name": "",
                 "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "insuredToken",
+        "outputs": [
+            {
+                "internalType": "contract InsuranceToken",
+                "name": "",
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -115,9 +266,9 @@
         "name": "name",
         "outputs": [
             {
-                "internalType": "bytes32",
+                "internalType": "string",
                 "name": "",
-                "type": "bytes32"
+                "type": "string"
             }
         ],
         "stateMutability": "view",
@@ -138,7 +289,46 @@
     },
     {
         "inputs": [],
-        "name": "totalFunds",
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "providerToken",
+        "outputs": [
+            {
+                "internalType": "contract InsuranceToken",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "refundPerecent",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalAsset",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -186,61 +376,6 @@
             }
         ],
         "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bool",
-                "name": "outcome",
-                "type": "bool"
-            }
-        ],
-        "name": "triggger",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "insurer",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            }
-        ],
-        "name": "updateInsurance",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "_insured",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "token",
-                "type": "address"
-            }
-        ],
-        "name": "updatePremiums",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
     }
 ]}

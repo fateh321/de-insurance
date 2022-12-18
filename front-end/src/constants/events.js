@@ -20,6 +20,12 @@ export const WBTC = {
     abbr: "WBTC",
     address: "0xaFF4481D10270F50f203E0763e2597776068CBc5", // Weth address
 };
+
+export const UNISWAP = {
+    factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+    router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+};
+
 export const DEADLINE = [
     {
         name: "1 December, 2022"

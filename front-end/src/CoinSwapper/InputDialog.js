@@ -160,7 +160,7 @@ export default function InputDialog(props) {
                                     <CoinButton
                                         coinName={index+1}
                                         coinAbbr={event.name}
-                                        onClick={() => exit([event.name, index, event.array])}
+                                        onClick={() => {console.log("inp_dial", event.name); return exit([event.name, index, event.array])}}
                                     />
                                 </Grid>
                             ))}
