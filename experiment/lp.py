@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import math
 
 downPool = 1000000
-settle_ratio = 0.99
+settle_ratio = 0.95
 # price = 1.1
 
 fig, (ax1, ax2) = plt.subplots(2)
@@ -33,18 +33,18 @@ for k in range(10):
 		y_axis_op.append(totalFinalValueOp)
 		y_axis_pe.append(totalFinalValuePe)
 		# print(k, totalFinalValueOp)
-	ax1.plot(x_axis, y_axis_op, label = "price:{}".format(float(math.ceil(10*price))/10))
-	ax2.plot(x_axis, y_axis_pe, label = "price:{}".format(float(math.ceil(10*price))/10))	
+	ax1.plot(x_axis, y_axis_op, label = "price:{}".format(float(math.ceil(100*price))/100))
+	ax2.plot(x_axis, y_axis_pe, label = "price:{}".format(float(math.ceil(100*price))/100))	
 # plt.xlabel('fraction owned')
 # plt.ylabel('profit')
 fig.text(0.5, 0.04, 'fraction owned', ha='center')
 fig.text(0.01, 0.5, 'profit', va='center', rotation='vertical')
 # plt.xlim(0,1.4)
-ax1.set_title('LP profit at multiple entry prices (optimistic outcome, s=0.99)',fontsize=8)
-ax2.set_title('LP profit at multiple entry prices (pessimistic outcome, s=0.99)',fontsize=8)
+ax1.set_title('LP profit at multiple entry prices (optimistic outcome, s={})'.format(settle_ratio),fontsize=8)
+ax2.set_title('LP profit at multiple entry prices (pessimistic outcome, s={})'.format(settle_ratio),fontsize=8)
 plt.legend(bbox_to_anchor=(1.05, 1.0), loc='best')
 fig.tight_layout(pad=2)
-plt.savefig('LP-s99.pdf')
+plt.savefig('LP-s95.png')
 # plt.show()
 
 # for i in range(100):
