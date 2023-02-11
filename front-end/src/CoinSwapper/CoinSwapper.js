@@ -383,7 +383,7 @@ function CoinSwapper(props) {
         //   signer,
         //   account
         // ).then((data) => setReserves(data));
-     
+      if (account) {
         getOptionBalanceAndSymbol(false, account, eventAddress, provider, signer).then(
           (data) => {
             setOption2({
@@ -396,6 +396,7 @@ function CoinSwapper(props) {
             });
           }
         );
+      }
      
         // getBalanceAndSymbol(account, coin2.address, provider, signer).then(
         //   (data) => {
@@ -409,13 +410,13 @@ function CoinSwapper(props) {
   
     return () => clearTimeout(coinTimeout);
   });
-  //
-  // // This hook will run when the component first mounts, it can be useful to put logic to populate variables here
-  // useEffect(() => {
-  //   getAccount().then((account) => {
-  //     setAccount(account);
-  //   });
-  // });
+  
+  // This hook will run when the component first mounts, it can be useful to put logic to populate variables here
+  useEffect(() => {
+    getAccount().then((account) => {
+      setAccount(account);
+    });
+  });
 
   return (
     <div>
