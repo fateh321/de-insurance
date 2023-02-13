@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/de-insurance/static/css/main.a78a040e.chunk.css",
-    "main.js": "/de-insurance/static/js/main.df1ee2c5.chunk.js",
-    "main.js.map": "/de-insurance/static/js/main.df1ee2c5.chunk.js.map",
+    "main.js": "/de-insurance/static/js/main.9b61163d.chunk.js",
+    "main.js.map": "/de-insurance/static/js/main.9b61163d.chunk.js.map",
     "runtime-main.js": "/de-insurance/static/js/runtime-main.3f8fd9b8.js",
     "runtime-main.js.map": "/de-insurance/static/js/runtime-main.3f8fd9b8.js.map",
     "static/css/2.4f8976c6.chunk.css": "/de-insurance/static/css/2.4f8976c6.chunk.css",
@@ -21,6 +21,6 @@
     "static/css/2.4f8976c6.chunk.css",
     "static/js/2.c9e0a1c2.chunk.js",
     "static/css/main.a78a040e.chunk.css",
-    "static/js/main.df1ee2c5.chunk.js"
+    "static/js/main.9b61163d.chunk.js"
   ]
 }
